@@ -15,6 +15,9 @@ public class PlayerMovement : MonoBehaviour
     new Transform transform;
     float cameraRotation;
     bool canJump;
+    bool walkAnimRepeat;
+
+    public Animator animator;
 
     // Start is called before the first frame update
     void Start()
@@ -25,14 +28,29 @@ public class PlayerMovement : MonoBehaviour
         cameraRotation = 0;
         canJump = false;
         transform = GetComponent<Transform>();
+        walkAnimRepeat = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        rb.AddForce(new Vector3(Mathf.Sin(cameraRotation * 0.0174533f), 0, Mathf.Cos(cameraRotation * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Vertical") * speed, ForceMode.Impulse);
-        rb.AddForce(new Vector3(Mathf.Sin((cameraRotation+90) * 0.0174533f), 0, Mathf.Cos((cameraRotation + 90) * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Horizontal") * speed, ForceMode.Impulse);
+        if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
+        {
+            rb.AddForce(new Vector3(Mathf.Sin(cameraRotation * 0.0174533f), 0, Mathf.Cos(cameraRotation * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Vertical") * speed, ForceMode.Impulse);
+            rb.AddForce(new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f), 0, Mathf.Cos((cameraRotation + 90) * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Horizontal") * speed, ForceMode.Impulse);
+            //if(!animator.isPlaying)
 
+            if (!walkAnimRepeat)
+            {
+                animator.Play("Base Layer.Run", 0, 0.15f);
+                walkAnimRepeat = true;
+            }
+
+        }
+        else {
+            walkAnimRepeat = false;
+            animator.Play("Base Layer.Idle");
+        }
         if (Input.GetAxis("Jump") > .2 && canJump) {
             rb.AddForce(Vector3.up*jumpHeight, ForceMode.Impulse);
             canJump = false;
