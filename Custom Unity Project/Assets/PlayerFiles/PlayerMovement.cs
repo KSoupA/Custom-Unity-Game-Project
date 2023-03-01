@@ -39,17 +39,20 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(new Vector3(Mathf.Sin(cameraRotation * 0.0174533f), 0, Mathf.Cos(cameraRotation * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Vertical") * speed, ForceMode.Impulse);
             rb.AddForce(new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f), 0, Mathf.Cos((cameraRotation + 90) * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Horizontal") * speed, ForceMode.Impulse);
             //if(!animator.isPlaying)
+            animator.speed = (Mathf.Abs(rb.velocity.x) + Mathf.Abs(rb.velocity.z))/20;
 
             if (!walkAnimRepeat)
             {
-                animator.Play("Base Layer.Run", 0, 0.15f);
+                animator.CrossFade("Base Layer.Run", 30, -1, 0,1);
                 walkAnimRepeat = true;
+                animator.speed = (Mathf.Abs(rb.velocity.x)+ Mathf.Abs(rb.velocity.y));
             }
 
         }
         else {
             walkAnimRepeat = false;
-            animator.Play("Base Layer.Idle");
+            animator.CrossFade("Base Layer.Idle", 200, -1, 0,1);
+            animator.speed = 0;
         }
         if (Input.GetAxis("Jump") > .2 && canJump) {
             rb.AddForce(Vector3.up*jumpHeight, ForceMode.Impulse);
@@ -65,9 +68,10 @@ public class PlayerMovement : MonoBehaviour
         {
             cameraRotation += 360;
         }
-        Debug.Log(cameraRotation);
+        
         cameraTransform.rotation = Quaternion.Euler(25, cameraRotation, 0);
-        transform.rotation = Quaternion.Euler(0, cameraRotation, 0);
+
+        transform.rotation = Quaternion.Euler(0,cameraRotation, 0);
 
         cameraTransform.position = transform.position + new Vector3(Mathf.Sin(cameraRotation * 0.0174533f) * -8, 4, Mathf.Cos(cameraRotation * 0.0174533f) * -8);
         RaycastHit hit;
