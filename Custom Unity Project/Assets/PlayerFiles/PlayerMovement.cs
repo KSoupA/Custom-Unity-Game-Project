@@ -36,10 +36,31 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
         {
-            rb.AddForce(new Vector3(Mathf.Sin(cameraRotation * 0.0174533f), 0, Mathf.Cos(cameraRotation * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Vertical") * speed, ForceMode.Impulse);
-            rb.AddForce(new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f), 0, Mathf.Cos((cameraRotation + 90) * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Horizontal") * speed, ForceMode.Impulse);
+
+            
+
+            if (Input.GetAxis("Horizontal") > 0 && Input.GetAxis("Vertical")==0)
+                rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos((cameraRotation + 90) * 0.0174533f) * speed * 25);
+            if (Input.GetAxis("Horizontal") < 0 && Input.GetAxis("Vertical") == 0)
+                rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f) * speed * -25, rb.velocity.y, Mathf.Cos((cameraRotation + 90) * 0.0174533f) * speed * -25);
+
+            if (Input.GetAxis("Vertical") > 0 && Input.GetAxis("Horizontal")==0)
+                rb.velocity = new Vector3(Mathf.Sin(cameraRotation * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos(cameraRotation * 0.0174533f) * speed * 25);
+            if (Input.GetAxis("Vertical") < 0 && Input.GetAxis("Horizontal") == 0)
+                rb.velocity = new Vector3(Mathf.Sin(cameraRotation * 0.0174533f) * speed * -25, rb.velocity.y, Mathf.Cos(cameraRotation * 0.0174533f) * speed * -25);
+
+            if (Input.GetAxis("Vertical") > 0 && Input.GetAxis("Horizontal") > 0)
+                rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 45) * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos((cameraRotation + 45) * 0.0174533f) * speed * 25);
+            if (Input.GetAxis("Vertical") < 0 && Input.GetAxis("Horizontal") < 0)
+                rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 225) * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos((cameraRotation + 225) * 0.0174533f) * speed * 25);
+            if (Input.GetAxis("Vertical") > 0 && Input.GetAxis("Horizontal") < 0)
+                rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 315) * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos((cameraRotation + 315) * 0.0174533f) * speed * 25);
+            if (Input.GetAxis("Vertical") < 0 && Input.GetAxis("Horizontal") > 0)
+                rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 135) * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos((cameraRotation + 135) * 0.0174533f) * speed * 25);
+            //rb.AddForce(new Vector3(Mathf.Sin(cameraRotation * 0.0174533f), 0, Mathf.Cos(cameraRotation * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Vertical") * speed, ForceMode.Impulse);
+            //rb.AddForce(new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f), 0, Mathf.Cos((cameraRotation + 90) * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Horizontal") * speed, ForceMode.Impulse);
             //if(!animator.isPlaying)
-            animator.speed = (Mathf.Abs(rb.velocity.x) + Mathf.Abs(rb.velocity.z))/20;
+            animator.speed = (Mathf.Abs(rb.velocity.x) + Mathf.Abs(rb.velocity.z))/10;
 
             if (!walkAnimRepeat)
             {
@@ -52,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
         else {
             walkAnimRepeat = false;
             animator.CrossFade("Base Layer.Idle", 200, -1, 0,1);
-            animator.speed = 0;
+            animator.speed = 1;
         }
         if (Input.GetAxis("Jump") > .2 && canJump) {
             rb.AddForce(Vector3.up*jumpHeight, ForceMode.Impulse);
@@ -69,9 +90,13 @@ public class PlayerMovement : MonoBehaviour
             cameraRotation += 360;
         }
         
+        
         cameraTransform.rotation = Quaternion.Euler(25, cameraRotation, 0);
 
-        transform.rotation = Quaternion.Euler(0,cameraRotation, 0);
+        if (rb.velocity.x + rb.velocity.y < -.03 || rb.velocity.x + rb.velocity.y > .03)
+        {
+            transform.rotation = Quaternion.Euler(0, Vector3.Angle(Vector3.forward,rb.velocity), 0);
+        }
 
         cameraTransform.position = transform.position + new Vector3(Mathf.Sin(cameraRotation * 0.0174533f) * -8, 4, Mathf.Cos(cameraRotation * 0.0174533f) * -8);
         RaycastHit hit;
