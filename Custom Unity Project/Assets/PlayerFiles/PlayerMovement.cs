@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     float cameraRotation;
     bool canJump;
     bool walkAnimRepeat;
+    bool idleAnimRepeat;
+    public float maxSpeed;
 
     public Animator animator;
 
@@ -29,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
         canJump = false;
         transform = GetComponent<Transform>();
         walkAnimRepeat = false;
+        idleAnimRepeat = false;
     }
 
     // Update is called once per frame
@@ -36,9 +39,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
         {
-
-            
-
+            /*
             if (Input.GetAxis("Horizontal") > 0 && Input.GetAxis("Vertical")==0)
                 rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos((cameraRotation + 90) * 0.0174533f) * speed * 25);
             if (Input.GetAxis("Horizontal") < 0 && Input.GetAxis("Vertical") == 0)
@@ -57,22 +58,30 @@ public class PlayerMovement : MonoBehaviour
                 rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 315) * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos((cameraRotation + 315) * 0.0174533f) * speed * 25);
             if (Input.GetAxis("Vertical") < 0 && Input.GetAxis("Horizontal") > 0)
                 rb.velocity = new Vector3(Mathf.Sin((cameraRotation + 135) * 0.0174533f) * speed * 25, rb.velocity.y, Mathf.Cos((cameraRotation + 135) * 0.0174533f) * speed * 25);
-            //rb.AddForce(new Vector3(Mathf.Sin(cameraRotation * 0.0174533f), 0, Mathf.Cos(cameraRotation * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Vertical") * speed, ForceMode.Impulse);
-            //rb.AddForce(new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f), 0, Mathf.Cos((cameraRotation + 90) * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Horizontal") * speed, ForceMode.Impulse);
+        */
+            if (rb.velocity.x + rb.velocity.z > -maxSpeed|| rb.velocity.x + rb.velocity.z < maxSpeed) { 
+                rb.AddForce(new Vector3(Mathf.Sin(cameraRotation * 0.0174533f), 0, Mathf.Cos(cameraRotation * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Vertical") * speed, ForceMode.Impulse);
+                rb.AddForce(new Vector3(Mathf.Sin((cameraRotation + 90) * 0.0174533f), 0, Mathf.Cos((cameraRotation + 90) * 0.0174533f)) * Time.deltaTime * Input.GetAxis("Horizontal") * speed, ForceMode.Impulse);
+            }
             //if(!animator.isPlaying)
             animator.speed = (Mathf.Abs(rb.velocity.x) + Mathf.Abs(rb.velocity.z))/10;
-
+            idleAnimRepeat = false;
             if (!walkAnimRepeat)
             {
                 animator.CrossFade("Base Layer.Run", 30, -1, 0,1);
                 walkAnimRepeat = true;
-                animator.speed = (Mathf.Abs(rb.velocity.x)+ Mathf.Abs(rb.velocity.y));
+                animator.speed = (Mathf.Abs(rb.velocity.x)+ Mathf.Abs(rb.velocity.z));
             }
 
         }
         else {
             walkAnimRepeat = false;
-            animator.CrossFade("Base Layer.Idle", 200, -1, 0,1);
+            if (!idleAnimRepeat)
+            {
+                animator.CrossFade("Base Layer.End Run", 200, -1, 0, 1);
+                idleAnimRepeat = true;
+                //animator.speed = (Mathf.Abs(rb.velocity.x) + Mathf.Abs(rb.velocity.z)) / 10;
+            }
             animator.speed = 1;
         }
         if (Input.GetAxis("Jump") > .2 && canJump) {
@@ -95,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (rb.velocity.x + rb.velocity.y < -.03 || rb.velocity.x + rb.velocity.y > .03)
         {
-            transform.rotation = Quaternion.Euler(0, Vector3.Angle(Vector3.forward,rb.velocity), 0);
+            transform.rotation = Quaternion.Euler(0, cameraRotation+ Mathf.Atan(Mathf.Sin(cameraRotation * 0.0174533f) / Mathf.Cos(cameraRotation * 0.0174533f)), 0);
         }
 
         cameraTransform.position = transform.position + new Vector3(Mathf.Sin(cameraRotation * 0.0174533f) * -8, 4, Mathf.Cos(cameraRotation * 0.0174533f) * -8);
